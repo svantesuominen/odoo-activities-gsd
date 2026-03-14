@@ -732,7 +732,7 @@ const Card = ({ card, isTop, index, initialTotal, currentCardNumber, onDismiss, 
                 )}
 
                 <div className="mt-8 flex flex-wrap gap-3">
-                    {card.type === 'Call' && card.phone && (
+                    {card.phone && (
                         <motion.a
                             href={`tel:${card.phone}`}
                             initial={{ opacity: 0, y: 10 }}
