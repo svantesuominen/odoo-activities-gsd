@@ -522,16 +522,16 @@ const CardStack: React.FC<CardStackProps> = ({ onSettingsError, onStatusChange }
 
             <div className="relative w-full aspect-[3/4] flex items-center justify-center">
                 <AnimatePresence mode="popLayout">
-                    {cards.map((card, index) => {
-                        const isTop = index === cards.length - 1;
+                    {cards.slice(-3).map((card, i, visible) => {
+                        const isTop = i === visible.length - 1;
                         return (
                             <Card
                                 key={card.id}
                                 card={card}
                                 isTop={isTop}
-                                index={cards.length - 1 - index}
+                                index={visible.length - 1 - i}
                                 initialTotal={initialTotal}
-                                currentCardNumber={initialTotal - (cards.length - index - 1)}
+                                currentCardNumber={initialTotal - visible.length + 1 + i}
                                 onDismiss={(dir: 'left' | 'farLeft' | 'right' | 'up') => {
                                     const action = dir === 'farLeft' ? 'doneNext' : dir === 'left' ? 'done' : dir === 'right' ? 'snooze' : 'dismiss';
                                     handleDismissAction(card, action);
@@ -643,7 +643,8 @@ const Card = ({ card, isTop, index, initialTotal, currentCardNumber, onDismiss, 
         <motion.div
             style={{
                 x, y, rotate: isTop ? rotate : 0, opacity: isTop ? opacity : 1,
-                zIndex: 50 - index, scale: 1 - index * 0.05, top: index * -15
+                zIndex: 50 - index, scale: 1 - index * 0.05, top: index * -15,
+                willChange: isTop ? 'transform' : 'auto',
             }}
             drag={isTop}
             dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -666,7 +667,7 @@ const Card = ({ card, isTop, index, initialTotal, currentCardNumber, onDismiss, 
                 className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center p-8 text-center"
             >
                 <motion.div style={{ opacity: doneNextOpacity }} className="flex flex-col items-center gap-1">
-                    <div className="w-20 h-20 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center border border-white/50 mb-3 shadow-lg">
+                    <div className="w-20 h-20 rounded-full bg-white/35 flex items-center justify-center border border-white/50 mb-3 shadow-lg">
                         <ChevronsRight className="text-white w-10 h-10" />
                     </div>
                     <span className="text-white font-black text-3xl uppercase tracking-widest drop-shadow-lg">Done</span>
@@ -678,13 +679,13 @@ const Card = ({ card, isTop, index, initialTotal, currentCardNumber, onDismiss, 
                     )}
                 </motion.div>
                 <motion.div style={{ opacity: doneOpacity }} className="flex flex-col items-center">
-                    <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/40 mb-4">
+                    <div className="w-20 h-20 rounded-full bg-white/25 flex items-center justify-center border border-white/40 mb-4">
                         <Check className="text-white w-10 h-10" />
                     </div>
                     <span className="text-white font-black text-2xl uppercase tracking-widest">Done</span>
                 </motion.div>
                 <motion.div style={{ opacity: snoozeOpacity }} className="flex flex-col items-center">
-                    <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/40 mb-4">
+                    <div className="w-20 h-20 rounded-full bg-white/25 flex items-center justify-center border border-white/40 mb-4">
                         <Clock className="text-white w-10 h-10" />
                     </div>
                     <span className="text-white font-black text-2xl uppercase tracking-widest leading-none">Later</span>
@@ -700,11 +701,11 @@ const Card = ({ card, isTop, index, initialTotal, currentCardNumber, onDismiss, 
             </motion.div>
 
             <div className="flex justify-between items-start">
-                <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+                <div className="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center border border-white/20">
                     <card.icon className="text-white w-7 h-7" />
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                    <div className="px-4 py-1.5 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-[10px] font-black text-white uppercase tracking-[0.2em]">
+                    <div className="px-4 py-1.5 rounded-full bg-black/30 border border-white/10 text-[10px] font-black text-white uppercase tracking-[0.2em]">
                         {card.type}
                     </div>
                 </div>
@@ -740,7 +741,7 @@ const Card = ({ card, isTop, index, initialTotal, currentCardNumber, onDismiss, 
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full border border-white/20 text-white font-bold text-xs transition-colors shadow-lg group/call"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-full border border-white/20 text-white font-bold text-xs transition-colors shadow-lg group/call"
                         >
                             <div className="w-5 h-5 rounded-full bg-emerald-500/80 flex items-center justify-center animate-pulse group-hover/call:animate-none">
                                 <Phone className="w-2.5 h-2.5 text-white fill-white" />
@@ -759,7 +760,7 @@ const Card = ({ card, isTop, index, initialTotal, currentCardNumber, onDismiss, 
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full border border-white/10 text-white/90 font-bold text-xs transition-colors shadow-lg group/odoo"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-black/25 hover:bg-black/40 rounded-full border border-white/10 text-white/90 font-bold text-xs transition-colors shadow-lg group/odoo"
                         >
                             <ExternalLink className="w-3.5 h-3.5 text-white/60 group-hover/odoo:text-white transition-colors" />
                             Open {getModelLabel(card.res_model)} in Odoo
@@ -773,7 +774,7 @@ const Card = ({ card, isTop, index, initialTotal, currentCardNumber, onDismiss, 
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={(e) => { e.stopPropagation(); onVoiceNote(); }}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full border border-white/20 text-white font-bold text-xs transition-colors shadow-lg"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-white/15 hover:bg-white/25 rounded-full border border-white/20 text-white font-bold text-xs transition-colors shadow-lg"
                         >
                             <Mic className="w-3.5 h-3.5 text-white" />
                             Add Voice Note

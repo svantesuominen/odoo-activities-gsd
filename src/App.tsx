@@ -22,8 +22,9 @@ function App() {
     <div className="min-h-screen bg-[#050505] text-white selection:bg-blue-500/30">
       {/* Background Glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-500/10 blur-[120px] rounded-full" />
-        <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-purple-500/10 blur-[120px] rounded-full" />
+        <div className="absolute inset-0" style={{
+          background: 'radial-gradient(ellipse 40% 40% at 0% 0%, rgba(59,130,246,0.08) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 100% 100%, rgba(168,85,247,0.08) 0%, transparent 70%)'
+        }} />
       </div>
 
       <main className="relative z-10 container mx-auto px-6 py-12 flex flex-col items-center min-h-screen">
