@@ -40,17 +40,22 @@ function App() {
         </section>
 
         <footer className="mt-auto pt-12 text-center flex flex-col items-center gap-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
-            <div className={`w-2 h-2 rounded-full animate-pulse ${!hasSetup ? 'bg-orange-500' :
-              connectionStatus === 'error' ? 'bg-red-500' :
-                connectionStatus === 'loading' ? 'bg-blue-300' :
-                  'bg-emerald-500'
-              }`} />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
-              {!hasSetup ? 'Setup Required' :
-                connectionStatus === 'error' ? 'System Offline' :
-                  connectionStatus === 'loading' ? 'Establishing Link...' :
-                    'System Ready'}
+          <div className="flex flex-col items-center gap-1">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+              <div className={`w-2 h-2 rounded-full animate-pulse ${!hasSetup ? 'bg-orange-500' :
+                connectionStatus === 'error' ? 'bg-red-500' :
+                  connectionStatus === 'loading' ? 'bg-blue-300' :
+                    'bg-emerald-500'
+                }`} />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+                {!hasSetup ? 'Setup Required' :
+                  connectionStatus === 'error' ? 'System Offline' :
+                    connectionStatus === 'loading' ? 'Establishing Link...' :
+                      'System Ready'}
+              </span>
+            </div>
+            <span className="text-[9px] font-mono text-zinc-700 tracking-wider">
+              updated {new Date(__BUILD_TIME__).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
 

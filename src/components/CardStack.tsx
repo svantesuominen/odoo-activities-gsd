@@ -607,8 +607,8 @@ const Card = ({ card, isTop, index, initialTotal, currentCardNumber, onDismiss, 
     const rotate = useTransform(x, [-180, 180], [-20, 20]);
     const opacity = useTransform(x, [-180, -150, 0, 150, 180], [0, 1, 1, 1, 0]);
 
-    const doneOpacity = useTransform(x, [-80, -50, -20], [0, 1, 0]);
-    const doneNextOpacity = useTransform(x, [-180, -80], [1, 0]);
+    const doneOpacity = useTransform(x, [-200, -80, -30], [0, 1, 0]);
+    const doneNextOpacity = useTransform(x, [-340, -200], [1, 0]);
     const snoozeOpacity = useTransform(x, [20, 100], [0, 1]);
     const overlayBg = useTransform(x, [-100, 0, 100], ['rgba(34, 197, 94, 0.8)', 'rgba(34, 197, 94, 0)', 'rgba(234, 179, 8, 0.8)']);
 
@@ -626,8 +626,8 @@ const Card = ({ card, isTop, index, initialTotal, currentCardNumber, onDismiss, 
 
     const handleDragEnd = (_: unknown, info: { velocity: { x: number, y: number }, offset: { x: number, y: number } }) => {
         const velocity = Math.sqrt(Math.pow(info.velocity.x, 2) + Math.pow(info.velocity.y, 2));
-        if (Math.abs(info.offset.x) > 150 || velocity > 800) {
-            if (info.offset.x < -160) {
+        if (Math.abs(info.offset.x) > 110 || velocity > 600) {
+            if (info.offset.x < -210) {
                 onDismiss('farLeft');
             } else {
                 const dir = info.offset.x < 0 ? 'left' : 'right';

@@ -3,6 +3,13 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import type { IncomingMessage } from 'node:http'
+import { execSync } from 'node:child_process'
+
+const commitHash = (() => {
+  try { return execSync('git rev-parse --short HEAD').toString().trim() } catch { return 'unknown' }
+})()
+
+const buildTime = new Date().toISOString()
 
 function dynamicProxy(fallback: string): ProxyOptions & { router: (req: IncomingMessage) => string } {
   return {
@@ -16,6 +23,10 @@ function dynamicProxy(fallback: string): ProxyOptions & { router: (req: Incoming
 
 // https://vite.dev/config/
 export default defineConfig({
+  define: {
+    __COMMIT_HASH__: JSON.stringify(commitHash),
+    __BUILD_TIME__: JSON.stringify(buildTime),
+  },
   plugins: [
     react(),
     tailwindcss(),
