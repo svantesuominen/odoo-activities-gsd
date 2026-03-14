@@ -210,6 +210,28 @@ const CardStack: React.FC<CardStackProps> = ({ onSettingsError, onStatusChange }
         fetchActivities();
     }, [fetchActivities]);
 
+    // Appends incoming text to existing, stripping any overlapping prefix caused
+    // by Android Chrome re-emitting buffered audio on recognition restart.
+    const appendWithDedup = (existing: string, incoming: string): string => {
+        const trimmed = incoming.trim();
+        if (!trimmed) return existing;
+        if (!existing) return trimmed;
+        const existingLower = existing.toLowerCase();
+        const incomingLower = trimmed.toLowerCase();
+        // Full re-emission: already ends with this exact text
+        if (existingLower.endsWith(incomingLower)) return existing;
+        // Partial overlap: check if end of existing matches start of incoming
+        const words = trimmed.split(/\s+/);
+        for (let i = Math.min(words.length - 1, 10); i >= 2; i--) {
+            const candidate = words.slice(0, i).join(' ').toLowerCase();
+            if (existingLower.endsWith(candidate)) {
+                const remainder = words.slice(i).join(' ');
+                return remainder ? existing + ' ' + remainder : existing;
+            }
+        }
+        return existing + ' ' + trimmed;
+    };
+
     const initSpeechRecognition = (lang?: string) => {
         if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
             const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -232,8 +254,7 @@ const CardStack: React.FC<CardStackProps> = ({ onSettingsError, onStatusChange }
                     }
                 }
                 if (newFinal) {
-                    const sep = committedTranscriptRef.current ? ' ' : '';
-                    committedTranscriptRef.current += sep + newFinal.trim();
+                    committedTranscriptRef.current = appendWithDedup(committedTranscriptRef.current, newFinal);
                 }
                 const interimTrimmed = interim.trim();
                 const sep = committedTranscriptRef.current && interimTrimmed ? ' ' : '';
@@ -248,14 +269,17 @@ const CardStack: React.FC<CardStackProps> = ({ onSettingsError, onStatusChange }
 
             recognition.onend = () => {
                 if (activeVoiceCardRef.current && recognitionSessionRef.current === sessionId) {
-                    // Create a fresh instance on every restart — reusing the same object
-                    // causes mobile browsers to re-emit previously heard words.
-                    const newRec = initSpeechRecognition();
-                    if (newRec) {
-                        try { newRec.start(); } catch (e) { setIsListening(false); }
-                    } else {
-                        setIsListening(false);
-                    }
+                    // Delay restart to let Android Chrome drain its audio buffer before
+                    // the new session starts — prevents re-emission of buffered words.
+                    setTimeout(() => {
+                        if (!activeVoiceCardRef.current || recognitionSessionRef.current !== sessionId) return;
+                        const newRec = initSpeechRecognition();
+                        if (newRec) {
+                            try { newRec.start(); } catch (e) { setIsListening(false); }
+                        } else {
+                            setIsListening(false);
+                        }
+                    }, 400);
                 } else if (recognitionSessionRef.current === sessionId) {
                     setIsListening(false);
                 }
