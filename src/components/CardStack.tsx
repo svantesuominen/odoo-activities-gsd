@@ -248,9 +248,12 @@ const CardStack: React.FC<CardStackProps> = ({ onSettingsError, onStatusChange }
 
             recognition.onend = () => {
                 if (activeVoiceCardRef.current && recognitionSessionRef.current === sessionId) {
-                    try {
-                        recognition.start();
-                    } catch (e) {
+                    // Create a fresh instance on every restart — reusing the same object
+                    // causes mobile browsers to re-emit previously heard words.
+                    const newRec = initSpeechRecognition();
+                    if (newRec) {
+                        try { newRec.start(); } catch (e) { setIsListening(false); }
+                    } else {
                         setIsListening(false);
                     }
                 } else if (recognitionSessionRef.current === sessionId) {
