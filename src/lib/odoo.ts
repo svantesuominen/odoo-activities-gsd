@@ -55,7 +55,9 @@ async function jsonRpcCall<T>(service: string, method: string, args: unknown[]):
     if (!s) throw new Error("Connection not configured. Please setup credentials.");
     const baseUrl = s.url.replace(/\/+$/, '');
 
-    const jsonRpcUrl = import.meta.env.DEV ? '/jsonrpc' : `${baseUrl}/jsonrpc`;
+    // In dev, Vite proxies /jsonrpc → Odoo (via X-Odoo-Target header).
+    // In prod, Vercel serverless function at /api/proxy does the same, avoiding CORS.
+    const jsonRpcUrl = import.meta.env.DEV ? '/jsonrpc' : '/api/proxy';
 
     const payload = {
         jsonrpc: '2.0',
@@ -72,8 +74,7 @@ async function jsonRpcCall<T>(service: string, method: string, args: unknown[]):
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            // Tell the dev proxy which Odoo instance to forward to
-            ...(import.meta.env.DEV ? { 'X-Odoo-Target': baseUrl } : {}),
+            'X-Odoo-Target': baseUrl,
         },
         body: JSON.stringify(payload),
     });
